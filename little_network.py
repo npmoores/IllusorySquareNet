@@ -3,6 +3,7 @@
 https://github.com/npmoores/IllusorySquareNet
 git remote add origin https://github.com/npmoores/IllusorySquareNet
 
+Authors: Andres Emilsson & Nicholas Moores
 """
 
 from PIL import Image, ImageFilter, ImageDraw
@@ -48,7 +49,7 @@ visualizeNetwork(network)
 
 # Here run the update algorithm. Probably the Constraint Satisfaction Problem 
 
-clampSquareInInut(network, square_origin_unit)
+clampSquareInInput(network, square_origin_unit)
 
 updateAllColumnUnits(network, l)
 updateAllRowUnits(network, l)
@@ -63,7 +64,7 @@ visualizeNetwork(network)
 ################### Functions ####################
 
 # This makes a square starting in square_origin_unit, an [a, b] list, in the input layer become fully active
-def clampSquareInInut(network, square_origin_unit):
+def clampSquareInInput(network, square_origin_unit):
 	for i in range(square_origin_unit[0], l +  square_origin_unit[0]):
 		network['I'][i][square_origin_unit[1]] = 1.
 		network['I'][i][square_origin_unit[1] + l -1] = 1.
