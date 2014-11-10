@@ -1,9 +1,9 @@
 
 """
-https://github.com/npmoores/IllusorySquareNet
-git remote add origin https://github.com/npmoores/IllusorySquareNet
-
 Authors: Andres Emilsson & Nicholas Moores
+
+git repository: https://github.com/npmoores/IllusorySquareNet
+command for new collaborator: git remote add origin https://github.com/npmoores/IllusorySquareNet
 """
 
 from PIL import Image, ImageFilter, ImageDraw
