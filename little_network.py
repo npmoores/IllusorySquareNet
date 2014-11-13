@@ -11,8 +11,7 @@ import math
 import sys
 import os
 
-picture_directory =  os.getcwd()
-
+picture_directory =  "/Users/andesgomez/Documents/Stanford/Autumn2014-Masters/Psych209/project/visualization/"
 
 # parameters
 n = 10
@@ -60,8 +59,11 @@ visualizeNetwork(network)
 
 
 
+
+
 ################### Functions ####################
 
+# Manipulate input
 # This makes a square starting in square_origin_unit, an [a, b] list, in the input layer become fully active
 def clampSquareInInut(network, square_origin_unit):
 	for i in range(square_origin_unit[0], l +  square_origin_unit[0]):
@@ -73,6 +75,12 @@ def clampSquareInInut(network, square_origin_unit):
 	return
 
 
+#def randomlyFlipInputUnits():
+#	return
+
+
+
+# Propagate activity
 # cUnit is an [i, j] coordinate within the C layer.
 # i < n - l + 1 and j < n
 def updateColumnUnit(cUnit, network, l):
@@ -104,9 +112,9 @@ def updateAllRowUnits(network, l):
 def updateSquareUnit(sUnit, network, l):
 	network['S'][sUnit[0]][sUnit[1]] = (
 		network['R'][sUnit[0]][sUnit[1]] + 
-		network['R'][sUnit[0] + l][sUnit[1]] +
+		network['R'][sUnit[0] + l - 1][sUnit[1]] +
 		network['C'][sUnit[0]][sUnit[1]] +
-		network['C'][sUnit[0]][sUnit[1] + l]
+		network['C'][sUnit[0]][sUnit[1] + l - 1]
 		) / 4.
 	return
 
@@ -201,7 +209,7 @@ for j in range(base.size[1]):
 	pixel_base[n,j] = (0, 0, 255)
 
 base.show()
-base.save(picture_directory + "network_test.bmp")
+base.save(picture_directory + "one_square.bmp")
 
 
 base.save(sys.path[0] + "/network_test1.bmp")
@@ -228,4 +236,5 @@ for i in range(new_x_dimension):
 		pixel_scaled_base[i, j] = pixel_base_original[current_x, current_y]
 
 scaled_base.show()
+scaled_base.save(picture_directory + "one_square_scaled.bmp")
 
