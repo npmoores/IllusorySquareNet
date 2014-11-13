@@ -19,7 +19,7 @@ picture_directory =  "/Users/andesgomez/Documents/Stanford/Autumn2014-Masters/Ps
 # parameters
 n = 10
 l = 5
-prob = 0.1
+prob = 0.0
 square_origin_unit = [2, 1]
 
 # For each of the layers, the format is a list of lists. 
@@ -83,4 +83,24 @@ e = math.exp(1)
 
 
 
+
+
+
+
+
+
+# Normalize C, R, update S, normalize S unpdare C, R
+
+# Andrew Ng - underflow, overflow, e^x such that it can be represented in 64 bit
+# All the net inputs before the activation.  "Synchonous upadting" -> How to do in RBM
+# "RBP?"- Rachel... No it is IAC. - JM
+
+# Temperature parameter determines net activation. Change it to allow peaks of activations
+# You want to change activation gradually. .01 granularity 100 time steps per second. 
+
+
+# Extrinsic oscillation source? 
+
+# Inhibitory inner neurons - delayed normalization: This could allow for a peak if activation and then subsiding. 
+# Transmission delays (also a possible source of oscillation).
 
