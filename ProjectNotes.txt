@@ -1,0 +1,47 @@
+Could use backprop to reduce error.
+
+Having an explicit gap somewhere and let other parts be complete. Vary the extent to which the rest of the figure suggests there's a square there.
+
+One thing is that the beauty of the kanisza figure is that it suggests that there's a square that's the same color as the overall background, creating the ambiguity itself.  One way to explicitly create the ambiguity is to have units that tell me that its white in certain places and black in certain places. Or alternatively, you just say 'maybe i have this prior that says it's usually black everywhere. If my hypothesis tells me that it should be white you could fill that in.'  
+
+The illusory contour would show up in the layer for lines.  It should converge to the square that the evidence most strongly supports. It is true that in V1 we have these very fine receptive fields that are sensitive to gradings (local edge detectors). In v2 they're bigger, looking for longer line segments. Even though V1 unit is an oriented line segment unit, it's a small piece of a longer line. One way to think about it is that there are units at a lower level that have 8 (4? horiz, vert, two diagonals) orientations. What the squares do is say 'in this location we need a horizontal line segment'.
+
+Instead of pixels, at each location there would be four line segments. The bottom up input that would support them would be my neighbors on my side and not the guys above and below me.
+
+As far as running this to generate graphs -- some sort of normalization might be necessary. Neuroscientists are doing divisive normalization -- sometimes it's just an average instead of the sum, sometimes it's the softmax function.  When you divide by the average, it means your generative model -- if you divide by the sum then you think one of these is the average and you don't know which one. If you divide by teh average then half should be active and half should not.
+
+Do whichever one makes the data look best and then run with it.  It's like mutual inhibition between all the units. If you thought about it you could say activation is:
+
+(e^net_i)/(alpha + beta * sum e^net_i) beta is how many items you think there are at once. If it's lines in space then this is some sort of sparsity parameter or something like that. Closer beta is to 1 then it's the more sparse you're thinking everything will be.
+
+If you run this thing as an interactive recurrent network using this activation function for your square layer and your line layers (apply the computation over the neurons in each layer; the summation normalizes the activity there). Recurrent because you want the top down info to 
+
+If you run this as a boltzmann machine or a multinomial interaction activation model, you'll be sampling from the true posterior of the generative model.If you run it continuously as a graded interactive activation process, it's not an exact bayesian computation, but should still produce the effect.
+
+The sampling process where you just choose one to be active is not the right thing for the lines because you have to let both horizontals be there, both verticals be there. It should also be a classification task.  Measuring activations is what we're doing!
+
+If you run this it will produce a graded activation process that will fill in the missing line a little bit later, but not ridiculously later. There would be some parameters to play with to get it to actually exhibit that behavior. The threshold for activation in the IAC model would help the model exhibit that delay. It's even less Bayesian, but it would be simpler. Possibly try IAC instead of softmax to avoid overflow/underflow bugs. 
+
+With the IAC you have to have a check to be sure that you haven't overshot. 
+
+Right now we're averaging activations, but we could explore other activation functions! If you truncate the net inputs so they're not ever actually outside the range [e^-10 and e^10] and you'll never have an overflow/underflow problem. 
+
+Andrew Ng has a tutorial on the softmax and overflow/underflow problem. You'll have to intuit how we want to change that to avoid this problem. 
+
+The thing that will be easy for us to produce will be curves that show, when the cube is complete, 'rising up and settling down to some value' (in the line layer; square layer will be a little bit delayed in leveling off by comparison).
+
+Possible to add noise by putting noise in the net inputs. Either have it in there or leave it out for simplicity.
+
+Use the function we talked about to get a continuous activation value -- update from lines to the squares, lines to the squares, etc. The way it works in the PDP tool is it goes through all the units and calculates net input for all of them based on input from the last timestep, then update the activation. It's really the IAC model. Each unit is seeing inputs of units that impinge on it and then update the activations accordingly -- synchronous updating.
+
+It propagates synchronously across time slices. x axis is number of iterations (kind of like epochs). 
+
+You could have a temperature parameter to scale the net input. In the cube model, you divide by a small T and activation blows up, turning the softmax into a hardmax type parameter. The other thing is that you want to update these activations gradually so that the curve doesn't jump up in one time step. What that means is that the calculation of the net input is using a time step parameter in it of 'how much do I change the activation at each timestep'. Suppose you use lambda = .01, as if you're simulating a process at 100 timesteps per second. Then if you calculate the net input the net input for a particular unit is going to be updated according to (1 - lambda)*net_i + lambda * sum of the weights coming into the units from all the other units and their activations. If lambda = 1 it updates frequently, if it's 0 it doesn't update, if it's .01 it updates gradually to get us the gradual effect.
+
+net_i <- (1 - lambda)*net_i + lambda*Sum_j (w_ij * a_j)
+
+It will produce a filling in effect but no oscillations, but it will definitely get the filling in effect. In the literature, it shows there's a lot of things that produce neural oscillations, one of them being an extrinsic signal from another area that's oscillating at a certain rate. That's another input to the net input, and that would produce some oscillations. It's sort of an exogenous signal then that's sort of driving the system. 
+
+In order to get the characteristic of the activation going down again -- then the normalization should have a lag to them. If there are interneurons that take a little time to adjust their input relative to the rest of the units. Inhibitory interneurons have to integrate their inputs too. 
+
+Just play with all this to the extent that you like! Even getting this thing to produce something like the basic pattern is certainly nontrivial. We can ask the question of wehter in the brain there are synaptic conduction delays that are long enough to explain the lags involved. The brain seems to have a transmission delay of about 10 ms; V1 and V2 are so close together that 10 ms would be way too long though. We don't actually know why there's such a long delay in Lee's data -- maybe you have to get a couple transmission delays to get the effect to occur. If you introduce transmission delays (already a basic source of intrinsic oscillation)
