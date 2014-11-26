@@ -1,10 +1,10 @@
-Could use backprop to reduce error.
+Could use backprop to reduce error?
 
-Having an explicit gap somewhere and let other parts be complete. Vary the extent to which the rest of the figure suggests there's a square there.
+For designing inputs: Having an explicit gap somewhere and let other parts be complete. Vary the extent to which the rest of the figure suggests there's a square there.
 
 One thing is that the beauty of the kanisza figure is that it suggests that there's a square that's the same color as the overall background, creating the ambiguity itself.  One way to explicitly create the ambiguity is to have units that tell me that its white in certain places and black in certain places. Or alternatively, you just say 'maybe i have this prior that says it's usually black everywhere. If my hypothesis tells me that it should be white you could fill that in.'  
 
-The illusory contour would show up in the layer for lines.  It should converge to the square that the evidence most strongly supports. It is true that in V1 we have these very fine receptive fields that are sensitive to gradings (local edge detectors). In v2 they're bigger, looking for longer line segments. Even though V1 unit is an oriented line segment unit, it's a small piece of a longer line. One way to think about it is that there are units at a lower level that have 8 (4? horiz, vert, two diagonals) orientations. What the squares do is say 'in this location we need a horizontal line segment'.
+The illusory contour would show up in the layer for lines.  It should converge to the square that the evidence most strongly supports. It is true that in V1 we have these very fine receptive fields that are sensitive to gradings (local edge detectors). In V2 they're bigger, looking for longer line segments. Even though V1 unit is an oriented line segment unit, it's a small piece of a longer line. One way to think about it is that there are units at a lower level that have 8 (4? horiz, vert, two diagonals) orientations. What the squares do is say 'in this location we need a horizontal line segment'.
 
 Instead of pixels, at each location there would be four line segments. The bottom up input that would support them would be my neighbors on my side and not the guys above and below me.
 
@@ -45,3 +45,6 @@ It will produce a filling in effect but no oscillations, but it will definitely 
 In order to get the characteristic of the activation going down again -- then the normalization should have a lag to them. If there are interneurons that take a little time to adjust their input relative to the rest of the units. Inhibitory interneurons have to integrate their inputs too. 
 
 Just play with all this to the extent that you like! Even getting this thing to produce something like the basic pattern is certainly nontrivial. We can ask the question of wehter in the brain there are synaptic conduction delays that are long enough to explain the lags involved. The brain seems to have a transmission delay of about 10 ms; V1 and V2 are so close together that 10 ms would be way too long though. We don't actually know why there's such a long delay in Lee's data -- maybe you have to get a couple transmission delays to get the effect to occur. If you introduce transmission delays (already a basic source of intrinsic oscillation)
+
+GENERAL SETUP OF AN IAC MODEL:
+IAC (interactive activation and competition network) consists of a collection of processing units organized into competitive pools. There are excitatory connections among units in different pools and inhibitory connections among units within the same pool.
