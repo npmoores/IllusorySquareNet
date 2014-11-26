@@ -20,6 +20,7 @@ picture_directory =  "/Users/andesgomez/Documents/Stanford/Autumn2014-Masters/Ps
 n = 10
 l = 5
 prob = 0.0
+lmda = 0.1
 square_origin_unit = [2, 1]
 
 # For each of the layers, the format is a list of lists. 
@@ -63,17 +64,9 @@ network_functions.updateAllSquareUnits(network, l, n)
 
 
 
-
-
 # Visualize the network, and save images in intermediate iterations. Probably interleave this with the previous section
 base = visual_functions.visualizeNetwork(network, n, l, picture_directory, "", False)
 scaled_base = visual_functions.rescaleNetwork(base, 5, picture_directory, "", True)
-
-
-
-
-
-
 
 # Backpropagation Algorithm
 
@@ -99,7 +92,7 @@ e = math.exp(1)
 # You want to change activation gradually. .01 granularity 100 time steps per second. 
 
 
-# Extrinsic oscillation source? 
+# Extrinsic oscillation source?
 
 # Inhibitory inner neurons - delayed normalization: This could allow for a peak if activation and then subsiding. 
 # Transmission delays (also a possible source of oscillation).
