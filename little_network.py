@@ -19,8 +19,10 @@ picture_directory =  "/Users/andesgomez/Documents/Stanford/Autumn2014-Masters/Ps
 # parameters
 n = 10
 l = 5
-prob = 0.0
-lmda = 0.1
+prob = 0.1
+lmda = .9
+sw = 1.
+= 4
 square_origin_unit = [2, 1]
 
 # For each of the layers, the format is a list of lists. 
@@ -72,14 +74,21 @@ scaled_base = visual_functions.rescaleNetwork(base, 5, picture_directory, "", Tr
 
 e = math.exp(1)
 
+for epoch in range(3):
+	cD = network_functions.computeColumnDeltas(network, l, n, sw)
+	rD = network_functions.computeRowDeltas(network, l, n, sw)
+	sD = network_functions.computeSquareDeltas(network, l, n)
 
+	acD = network_functions.averageLayer(cD, lmda, k)
+	arD = network_functions.averageLayer(rD, lmda, k)
+	asD = network_functions.averageLayer(sD, lmda, k)
 
+	network_functions.updateColumnsWithDeltas(network, acD, l, n, lmda)
+	network_functions.updateRowsWithDeltas(network, arD, l, n, lmda)
+	network_functions.updateSquaresWithDeltas(network, asD, l, n, lmda)
 
-
-
-
-
-
+	base = visual_functions.visualizeNetwork(network, n, l, picture_directory, "", False)
+	scaled_base = visual_functions.rescaleNetwork(base, 5, picture_directory, "", True)
 
 
 # Normalize C, R, update S, normalize S unpdare C, R

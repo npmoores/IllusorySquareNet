@@ -84,6 +84,7 @@ def updateAllSquareUnits(network, l, n):
 # deltas are computed
 
 
+# Column Deltas
 def computeColumnDeltaUnit(cUnit, network, l, n, sw):
 	sum_of_activation = 0
 	for i in range(l):
@@ -104,18 +105,17 @@ def computeColumnDeltas(network, l, n, sw):
 			Cdeltas[i][j] = computeColumnDeltaUnit([i, j], network, l, n, sw)
 	return Cdeltas
  
-
+# Row Deltas
 def computeRowDeltaUnit(rUnit, network, l, n, sw):
 	sum_of_activation = 0
 	for j in range(l):
 		sum_of_activation += network['I'][rUnit[0]][rUnit[1] + j]
 	if rUnit[0] < n -l + 1:
 		sum_of_activation += sw * network['S'][rUnit[0]][rUnit[1]]
-	if rUnit[0] -l + 1 >= 0:
-		sum_of_activation += sw * network['S'][rUnit[0]][rUnit[1] - l + 1]
+	if rUnit[0] - l + 1 >= 0:
+		sum_of_activation += sw * network['S'][rUnit[0] - l + 1][rUnit[1]]
 	Rdelta = sum_of_activation
 	return Rdelta
-
 
 def computeRowDeltas(network, l, n, sw):
 	Rdeltas = []
@@ -126,10 +126,63 @@ def computeRowDeltas(network, l, n, sw):
 			Rdeltas[i][j] = computeRowDeltaUnit([i, j], network, l, n, sw)
 	return Rdeltas
 
+# Square Deltas
+def computeSquareDeltaUnits(sUnit, network, l, n):
+	Sdelta = (
+		network['R'][sUnit[0]][sUnit[1]] + 
+		network['R'][sUnit[0] + l - 1][sUnit[1]] +
+		network['C'][sUnit[0]][sUnit[1]] +
+		network['C'][sUnit[0]][sUnit[1] + l - 1]
+		)
+	return Sdelta
 
-def computeSquareDeltaUnits():
+def computeSquareDeltas(network, l, n):
+	Sdeltas = []
+	for i in range(n - l + 1):
+		Sdeltas += [[0. for j in range(n - l + 1)]]
+	for i in range(n - l + 1):
+		for j in range(n - l + 1):
+			Sdeltas[i][j] = computeSquareDeltaUnits([i, j], network, l, n)
+	return Sdeltas
+
+
+# Normalize a given layer of the deltas
+def averageLayer(someDeltas, lmda, konstant):
+	newDeltas = someDeltas
+	total_number_of_units = len(someDeltas)*len(someDeltas[0])
+	starting_total_activation = 0.
+	for i in range(len(someDeltas)):
+		starting_total_activation += sum(someDeltas[i])
+	for i in range(len(someDeltas)):
+		for j in range(len(someDeltas[i])):
+			newDeltas[i][j] = lmda*total_number_of_units * someDeltas[i][j] / float(starting_total_activation)
+	return newDeltas
+
+
+
+# Normalize in a different way
+
+
+
+
+# Update
+
+def updateColumnsWithDeltas(network, Cdeltas, l, n, lmda):
+	for i in range(n - l + 1):
+		for j in range(n):
+			network['C'][i][j] = (1 - lmda) * network['C'][i][j] + lmda * Cdeltas[i][j]
 	return
 
-def computeSquareDeltas():
+def updateRowsWithDeltas(network, Rdeltas, l, n, lmda):
+	for i in range(n):
+		for j in range(n - l + 1):
+			network['R'][i][j] = (1 - lmda) * network['R'][i][j] + lmda * Rdeltas[i][j]
 	return
+
+def updateSquaresWithDeltas(network, Sdeltas, l, n, lmda):
+	for i in range(n - l + 1):
+		for j in range(n - l + 1):
+			network['S'][i][j] = (1 - lmda) * network['S'][i][j] + lmda * Sdeltas[i][j]
+	return
+
 
