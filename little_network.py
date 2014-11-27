@@ -22,7 +22,7 @@ l = 5
 prob = 0.1
 lmda = .9
 sw = 1.
-= 4
+k = 4.
 square_origin_unit = [2, 1]
 
 # For each of the layers, the format is a list of lists. 
@@ -74,7 +74,7 @@ scaled_base = visual_functions.rescaleNetwork(base, 5, picture_directory, "", Tr
 
 e = math.exp(1)
 
-for epoch in range(3):
+for epoch in range(5):
 	cD = network_functions.computeColumnDeltas(network, l, n, sw)
 	rD = network_functions.computeRowDeltas(network, l, n, sw)
 	sD = network_functions.computeSquareDeltas(network, l, n)
