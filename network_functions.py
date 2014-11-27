@@ -6,6 +6,7 @@ import os
 import visual_functions
 
 
+e = math.exp(1)
 
 # Manipulate input
 # This makes a square starting in square_origin_unit, an [a, b] list, in the input layer become fully active
@@ -146,26 +147,55 @@ def computeSquareDeltas(network, l, n):
 	return Sdeltas
 
 
-# Normalize a given layer of the deltas
-def averageLayer(someDeltas, lmda, konstant):
-	newDeltas = someDeltas
-	total_number_of_units = len(someDeltas)*len(someDeltas[0])
-	starting_total_activation = 0.
-	for i in range(len(someDeltas)):
-		starting_total_activation += sum(someDeltas[i])
-	for i in range(len(someDeltas)):
-		for j in range(len(someDeltas[i])):
-			newDeltas[i][j] = lmda*total_number_of_units * someDeltas[i][j] / float(starting_total_activation)
-	return newDeltas
+
+
+# # Normalize a given layer of the deltas (deprecated)
+# def averageLayer(someDeltas, lmda, k):
+# 	newDeltas = someDeltas
+# 	total_number_of_units = len(someDeltas)*len(someDeltas[0])
+# 	starting_total_activation = 0.
+# 	for i in range(len(someDeltas)):
+# 		starting_total_activation += sum(someDeltas[i])
+# 	for i in range(len(someDeltas)):
+# 		for j in range(len(someDeltas[i])):
+# 			newDeltas[i][j] = k*lmda*someDeltas[i][j] / float(starting_total_activation)
+# 	return newDeltas
+
+# # Normalize with logs given a layer of deltas (deprecated)
+# def logAveragedLayer(someDeltas, lmda, k, alpha, beta):
+# 	newDeltas = someDeltas
+# 	total_number_of_units = len(someDeltas)*len(someDeltas[0])
+# 	starting_total_activation = 0.
+# 	for i in range(len(someDeltas)):
+# 		starting_total_activation += sum(someDeltas[i])
+# 	for i in range(len(someDeltas)):
+# 		for j in range(len(someDeltas[i])):
+# 			newDeltas[i][j] = k*lmda*someDeltas[i][j] / float(starting_total_activation)
+# 	return newDeltas
 
 
 
-# Normalize in a different way
+
+# Normalize the network by taking the average of everything and 
+def averageLayers(network, k):
+	for layer in ['C', 'R', 'S']:
+		total_number_of_units = len(network[layer])*len(network[layer][0])
+		starting_total_activation = 0.
+		for i in range(len(network[layer])):
+			starting_total_activation += sum(network[layer][i])
+		if starting_total_activation > 0:
+			for i in range(len(network[layer])):
+				for j in range(len(network[layer][i])):
+					network[layer][i][j] = k*network[layer][i][j] / float(starting_total_activation)
+		else:
+			for i in range(len(network[layer])):
+				for j in range(len(network[layer][i])):
+					network[layer][i][j] = k / float(total_number_of_units)
+	return
 
 
 
-
-# Update
+# Update using the delta method
 
 def updateColumnsWithDeltas(network, Cdeltas, l, n, lmda):
 	for i in range(n - l + 1):
@@ -184,5 +214,39 @@ def updateSquaresWithDeltas(network, Sdeltas, l, n, lmda):
 		for j in range(n - l + 1):
 			network['S'][i][j] = (1 - lmda) * network['S'][i][j] + lmda * Sdeltas[i][j]
 	return
+
+
+
+
+
+# Normalize using divisive activation
+# Note that e**710 gives you an Overflow error, thus we limit ourselves to a maximum of e**700 to keep it safe.
+# Likewise, e**-747 gives you exactly zero. Thus we limit ourselves to a minimum of e**-700
+def activateNetwork(network, net_inputs, alpha, beta):
+	for layer in ['C', 'R', 'S']:
+		total_number_of_units = len(network[layer])*len(network[layer][0])
+		total_sum_of_exponents_of_inputs = 0.
+		for i in range(len(net_inputs[layer])):
+			for j in range(len(net_inputs[layer][i])):
+				total_sum_of_exponents_of_inputs += e**max(min(net_inputs[layer][i][j], 700), -700) #= min(total_sum_of_exponents_of_inputs + e**net_inputs[layer][i][j], e**709)
+		for i in range(len(net_inputs[layer])):
+			for j in range(len(net_inputs[layer][i])):
+				network[layer][i][j] = e**max(min(net_inputs[layer][i][j], 700), -700) / (alpha + beta*total_sum_of_exponents_of_inputs)
+	return
+
+
+
+
+# Instead you can use the NETS method. I.e. maintain a NET_i representation and update it accordingly
+def updateNetInputs(previousCnets, newRawC, lmda):
+	for i in range(len(previousCnets)):
+		for j in range(len(previousCnets[i])):
+			previousCnets[i][j] = (1 - lmda) * previousCnets[i][j] + lmda*newRawC[i][j]
+	return previousCnets
+
+
+
+
+
 
 

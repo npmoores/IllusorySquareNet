@@ -48,3 +48,20 @@ Just play with all this to the extent that you like! Even getting this thing to 
 
 GENERAL SETUP OF AN IAC MODEL:
 IAC (interactive activation and competition network) consists of a collection of processing units organized into competitive pools. There are excitatory connections among units in different pools and inhibitory connections among units within the same pool.
+
+
+
+# Normalize C, R, update S, normalize S update C, R
+
+# Andrew Ng - underflow, overflow, e^x such that it can be represented in 64 bit
+# All the net inputs before the activation.  "Synchonous upadting" -> How to do in RBM
+# "RBP?"- Rachel... No it is IAC. - JM
+
+# Temperature parameter determines net activation. Change it to allow peaks of activations
+# You want to change activation gradually. .01 granularity 100 time steps per second. 
+
+
+# Extrinsic oscillation source?
+
+# Inhibitory inner neurons - delayed normalization: This could allow for a peak if activation and then subsiding. 
+# Transmission delays (also a possible source of oscillation).

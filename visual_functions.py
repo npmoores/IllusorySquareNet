@@ -7,7 +7,7 @@ import os
 
 
 
-def visualizeNetwork(network, n, l, picture_directory, name_to_save, show):
+def visualizeNetwork(network, n, l, picture_directory, expo, name_to_save, show):
 	AUTOS = [[0 for i in range(2*n - l + 2)] for j in range(2*n - l + 2)]
 	# Input layer
 	for i in range(n):
@@ -31,9 +31,9 @@ def visualizeNetwork(network, n, l, picture_directory, name_to_save, show):
 	pixel_base = base.load()
 	for i in range(base.size[0]):
 		for j in range(base.size[1]):
-			r = int(AUTOS[i][j] * 255)
-			g = int(AUTOS[i][j] * 255)
-			b = int(AUTOS[i][j] * 255)
+			r = int(AUTOS[i][j]**expo * 255)
+			g = int(AUTOS[i][j]**expo * 255)
+			b = int(AUTOS[i][j]**expo * 255)
 			pixel_base[i,j] = (r, g, b)
 	for i in range(base.size[0]):
 		pixel_base[i,n] = (0, 0, 255)
