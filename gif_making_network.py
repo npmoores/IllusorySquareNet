@@ -23,15 +23,15 @@ gifs_directory =  "/Users/andesgomez/Documents/Stanford/Autumn2014-Masters/Psych
 # Network parameters
 n = 30
 l = 6
-prob = 0.2
-sou = [[2, 10], [11, 11]]
+prob = 0.15
+sou = [[2, 10], [10, 11], [20, 21]]
 
 # Update parameters
 lmda = .05
-sw = 10
+sw = 1
 k = 2.
-alpha = .2
-beta = 0.05
+alpha = .01
+beta = 0.025
 
 # Visualization parameters
 visual_scaling = 5
