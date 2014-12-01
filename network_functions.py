@@ -235,6 +235,20 @@ def activateNetwork(network, net_inputs, alpha, beta):
 	return
 
 
+def activateNetworkWithTemperature(network, net_inputs, alpha, beta, t):
+	for layer in ['C', 'R', 'S']:
+		total_number_of_units = len(network[layer])*len(network[layer][0])
+		total_sum_of_exponents_of_inputs = 0.
+		for i in range(len(net_inputs[layer])):
+			for j in range(len(net_inputs[layer][i])):
+				total_sum_of_exponents_of_inputs += e**max(min(net_inputs[layer][i][j] / t, 700), -700) #= min(total_sum_of_exponents_of_inputs + e**net_inputs[layer][i][j], e**709)
+		for i in range(len(net_inputs[layer])):
+			for j in range(len(net_inputs[layer][i])):
+				network[layer][i][j] = e**max(min(net_inputs[layer][i][j] / t, 700), -700) / (alpha + beta*total_sum_of_exponents_of_inputs)
+	return
+
+
+
 
 
 # Instead you can use the NETS method. I.e. maintain a NET_i representation and update it accordingly
