@@ -6,18 +6,39 @@ import os
 import visual_functions
 
 
+# Math tools
 e = math.exp(1)
+
+def gaussianFunction(amp, sd, d):
+	return amp*e**(-d**2 / (2*sd**2))
+
 
 # Manipulate input
 # This makes a square starting in square_origin_unit, an [a, b] list, in the input layer become fully active
+# def clampSquareInInput(network, square_origin_unit, l, n):
+# 	for i in range(square_origin_unit[0], l +  square_origin_unit[0]):
+# 		network['I'][i][square_origin_unit[1]] = 1.
+# 		network['I'][i][square_origin_unit[1] + l -1] = 1.
+# 	for j in range(square_origin_unit[1], l +  square_origin_unit[1]):
+# 		network['I'][square_origin_unit[0]][j] = 1.
+# 		network['I'][square_origin_unit[0] + l - 1][j] = 1.
+# 	return
+
+
 def clampSquareInInput(network, square_origin_unit, l, n):
-	for i in range(square_origin_unit[0], l +  square_origin_unit[0]):
+	for i in range(square_origin_unit[0], min(n, l +  square_origin_unit[0])):
 		network['I'][i][square_origin_unit[1]] = 1.
-		network['I'][i][square_origin_unit[1] + l -1] = 1.
-	for j in range(square_origin_unit[1], l +  square_origin_unit[1]):
+		if (square_origin_unit[1] + l -1) < len(network['I'][i]):
+			network['I'][i][square_origin_unit[1] + l -1] = 1.
+	for j in range(square_origin_unit[1], min(n, l +  square_origin_unit[1])):
 		network['I'][square_origin_unit[0]][j] = 1.
-		network['I'][square_origin_unit[0] + l - 1][j] = 1.
+		if square_origin_unit[0] + l - 1 < len(network['I'][0]):
+			network['I'][square_origin_unit[0] + l - 1][j] = 1.
 	return
+
+
+
+
 
 
 def randomlyFlipInputUnits(network, prob, n):
@@ -26,6 +47,26 @@ def randomlyFlipInputUnits(network, prob, n):
 			if random.random() < prob:
 				network['I'][i][j] = 1. - network['I'][i][j]
 	return
+
+
+
+
+
+def initializeANetwork(n, l):
+	network = {'I':[], 'C':[], 'R':[], 'S':[]}
+	for i in range(n):
+		network['I'] += [[0 for j in range(n)]]
+	for i in range(n - l + 1):
+		network['C'] += [[0.0 for j in range(n)]]
+	for i in range(n):
+		network['R'] += [[0.0 for j in range(n - l + 1)]]
+	for i in range(n - l + 1):
+		network['S'] += [[0. for j in range(n - l + 1)]]
+	return network
+
+
+
+
 
 
 
@@ -235,6 +276,7 @@ def activateNetwork(network, net_inputs, alpha, beta):
 	return
 
 
+# Using a temperature parameter
 def activateNetworkWithTemperature(network, net_inputs, alpha, beta, t):
 	for layer in ['C', 'R', 'S']:
 		total_number_of_units = len(network[layer])*len(network[layer][0])
@@ -246,6 +288,37 @@ def activateNetworkWithTemperature(network, net_inputs, alpha, beta, t):
 			for j in range(len(net_inputs[layer][i])):
 				network[layer][i][j] = e**max(min(net_inputs[layer][i][j] / t, 700), -700) / (alpha + beta*total_sum_of_exponents_of_inputs)
 	return
+
+
+# Using localizied divisive normalization kernelized by a single Gaussian
+def activateNetworkWithGaussianKernel(network, net_inputs, alpha, beta, t, amp, sd):
+	for layer in ['C', 'R', 'S']:
+		total_number_of_units = len(network[layer])*len(network[layer][0])
+		for i in range(len(net_inputs[layer])):
+			for j in range(len(net_inputs[layer][i])):
+				total_sum_of_exponents_of_inputs = 0.
+				for ii in range(len(net_inputs[layer])):
+					for jj in range(len(net_inputs[layer][i])):
+						distance = ((i - ii)**2 + (j - jj)**2)**.5
+						total_sum_of_exponents_of_inputs += (e**max(min(net_inputs[layer][ii][jj] / t, 700), -700))*gaussianFunction(amp, sd, distance)
+				network[layer][i][j] = e**max(min(net_inputs[layer][i][j] / t, 700), -700) / (alpha + beta*total_sum_of_exponents_of_inputs)
+	return
+
+
+# Using localizied divisive normalization kernelized by a MEXICAN HAT Gaussian
+def activateNetworkWithMexicanHatKernel(network, net_inputs, alpha, beta, t, amp1, sd1, amp2, sd2):
+	for layer in ['C', 'R', 'S']:
+		total_number_of_units = len(network[layer])*len(network[layer][0])
+		for i in range(len(net_inputs[layer])):
+			for j in range(len(net_inputs[layer][i])):
+				total_sum_of_exponents_of_inputs = 0.
+				for ii in range(len(net_inputs[layer])):
+					for jj in range(len(net_inputs[layer][i])):
+						distance = ((i - ii)**2 + (j - jj)**2)**.5
+						total_sum_of_exponents_of_inputs += (e**max(min(net_inputs[layer][ii][jj] / t, 700), -700))*(gaussianFunction(amp1, sd1, distance) - gaussianFunction(amp2, sd2, distance))
+				network[layer][i][j] = e**max(min(net_inputs[layer][i][j] / t, 700), -700) / (alpha + beta*total_sum_of_exponents_of_inputs)
+	return
+
 
 
 

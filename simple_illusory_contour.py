@@ -23,19 +23,30 @@ picture_directory =  "/Users/andesgomez/Documents/Stanford/Autumn2014-Masters/Ps
 gifs_directory =  "/Users/andesgomez/Documents/Stanford/Autumn2014-Masters/Psych209/project/gifs/"
 plots_directory = "/Users/andesgomez/Documents/Stanford/Autumn2014-Masters/Psych209/project/plots/"
 
-# Network parameters
+# Network architecture parameters
 n = 30
-l = 10
+l = 10 # Recognized square length
+sl = 10 # Input square length
 prob = 0.0
-sou = [[11,11]]
+sou =  [[11, 11], [5, 18], [23, 20], [25, 1]] # [[11, 11]]
+
+# Input parameters [0, 3] inclusive. 0 complete square, 1 one side missing, 2 one side illusion, 3 Kanicza
+sq = 0
+
+# Normalization. dnorm 0 = layer normalization, 1 = one gaussian, 2 = DOG mexican hat
+dnorm = 0
+amp1 = 1
+sd1 = .7
+amp2 = .5
+sd2 = 2
 
 # Update parameters
 lmda = .1
-sw = 10.
+sw = 2.
 k = 2.
-alpha = .01
-beta = .09
-t = 1.7
+alpha = .31
+beta = .002
+t = 1.0
 
 # Visualization parameters
 visual_scaling = 5
@@ -60,18 +71,39 @@ for unit in range(len(square_units_to_measure)):
 
 
 # Fine detail network modifications
-#black_input_suqares = []
-black_input_suqares = [[20, 11], [20, 12], [20, 13], [20, 14], [20, 15], [20, 16], [20, 17], [20, 18], [20, 19], [20, 20]]
-#black_input_suqares = [[20, 14], [20, 15], [20, 16], [20, 17]]
-# black_input_suqares += [[11, 14], [11, 15], [11, 16], [11, 17]]
-# black_input_suqares += [[14, 11], [15, 11], [16, 11], [17, 11]]
-# black_input_suqares += [[14, 20], [15, 20], [16, 20], [17, 20]]
+black_input_suqares = []
+parameter_description = "complete_square_"
+if sq == 1:
+	x, y = sou[0]
+	for i in range(sl):
+		black_input_suqares += [[x + sl - 1, y + i]]
+	#black_input_suqares += [[20, 11], [20, 12], [20, 13], [20, 14], [20, 15], [20, 16], [20, 17], [20, 18], [20, 19], [20, 20]]
+	parameter_description = "one_side_missing_"
+if sq == 2:
+	x, y = sou[0]
+	for i in range(1 + sl / 3):
+		black_input_suqares += [[x + sl - 1, y + sl/3 + i ]]
+	#black_input_suqares += [[20, 14], [20, 15], [20, 16], [20, 17]]
+	parameter_description = "one_side_illusion_"
+if sq == 3:
+	x, y = sou[0]
+	for i in range(1 + sl / 3):
+		black_input_suqares += [[x, y + sl/3 + i]]
+		black_input_suqares += [[x + sl - 1, y + sl/3 + i]]
+		black_input_suqares += [[x + sl/3 + i, y]]
+		black_input_suqares += [[x + sl/3 + i, y  + sl - 1]]
+	#black_input_suqares += [[20, 14], [20, 15], [20, 16], [20, 17]]
+	#black_input_suqares += [[11, 14], [11, 15], [11, 16], [11, 17]]
+	#black_input_suqares += [[14, 11], [15, 11], [16, 11], [17, 11]]
+	#black_input_suqares += [[14, 20], [15, 20], [16, 20], [17, 20]]
+	parameter_description = "all_sides_illusion_"
 
-parameter_description = "n" + str(n) + "_l" + str(l) + "_prob" + str(prob) + "_sq" 
+parameter_description += "n" + str(n) + "_l" + str(l) + "_sl" + str(sl) + "_prob" + str(prob) + "_sou" 
 for i in range(len(sou)):
 	parameter_description += str(sou[i][0]) + "-" + str(sou[i][1]) + "a"
 parameter_description += "_lmda" + str(lmda)[1:] + "_sw" + str(sw) + "_alpha" + str(alpha) + "_beta" + str(beta)
-parameter_description +=  "_scaling" + str(visual_scaling)  + "_expo" + str(expo) + "_t" + str(t)
+parameter_description +=  "_scaling" + str(visual_scaling)  + "_expo" + str(expo) + "_t" + str(t) + "_dnorm" + str(dnorm)
+parameter_description +=  "_amp1" + str(amp1) + "_sd1" + str(sd1) + "_amp2" + str(amp2) + "_sd2" + str(sd2)
 parameter_description = parameter_description.replace('.', '-')
 
 
@@ -79,25 +111,16 @@ parameter_description = parameter_description.replace('.', '-')
 # Example: network[I][0][1] is the brightness value of the pixel in row 0, column 1, of the Input layer
 
 #Initialize the network
-network = {'I':[], 'C':[], 'R':[], 'S':[]}
 
-for i in range(n):
-	network['I'] += [[0 for j in range(n)]]
 
-for i in range(n - l + 1):
-	network['C'] += [[0.0 for j in range(n)]]
 
-for i in range(n):
-	network['R'] += [[0.0 for j in range(n - l + 1)]]
-
-for i in range(n - l + 1):
-	network['S'] += [[0. for j in range(n - l + 1)]]
+network = network_functions.initializeANetwork(n, l)
 
 
 # Set starting values.
 # Add a square, or two, of activation in the input layer
 for i in range(len(sou)):
-	network_functions.clampSquareInInput(network, sou[i], l, n)
+	network_functions.clampSquareInInput(network, sou[i], sl, n)
 
 # Add noise to the input layer by flipping squares at random
 network_functions.randomlyFlipInputUnits(network, prob, n)
@@ -143,7 +166,12 @@ for epoch in range(epochs_total):
 	net_inputs['S'] = network_functions.updateNetInputs(net_inputs['S'], newS, lmda)
 	
 	#network_functions.activateNetwork(network, net_inputs, alpha, beta)
-	network_functions.activateNetworkWithTemperature(network, net_inputs, alpha, beta, t)
+	if dnorm == 0:
+		network_functions.activateNetworkWithTemperature(network, net_inputs, alpha, beta, t)
+	if dnorm == 1:
+		network_functions.activateNetworkWithGaussianKernel(network, net_inputs, alpha, beta, t, amp1, sd1)
+	if dnorm == 2:
+		network_functions.activateNetworkWithMexicanHatKernel(network, net_inputs, alpha, beta, t, amp1, sd1, amp2, sd2)
 
 	for unit in range(len(row_units_to_measure)):
 		i, j = row_units_to_measure[unit]
@@ -151,7 +179,7 @@ for epoch in range(epochs_total):
 	
 	for unit in range(len(square_units_to_measure)):
 		i, j = square_units_to_measure[unit]
-		measurements_lists_square[unit] += [network['S'][i][j] / 500.]
+		measurements_lists_square[unit] += [network['S'][i][j] / 1.]
 
 	if epoch % every_how_many_epochs == 0:
 		base = visual_functions.visualizeNetwork(network, n, l, picture_directory, expo, "", False)
@@ -160,7 +188,7 @@ for epoch in range(epochs_total):
 
 
 
-writeGif(gifs_directory + "one_side_missing_" + parameter_description + ".gif", image_sequence, duration=0.2)
+writeGif(gifs_directory + parameter_description + ".gif", image_sequence, duration=0.2)
 
 
 x = range(epochs_total + 1)
@@ -179,6 +207,6 @@ for i in range(len(square_units_to_measure)):
 	plot_list_ls += plt.plot(x, measurements_lists_square[i], plot_functions.getDotType(i + count), label = "square " + str(square_units_to_measure[i]))
 
 plt.legend(loc="lower right") #, bbox_to_anchor=(1,.5), shadow=True)
-plt.savefig(plots_directory + "one_side_missing_" + parameter_description + ".png") # one_side_illusion_, complete_square_, all_sides_illusion_, one_side_missing_
+plt.savefig(plots_directory +  parameter_description + ".png") # one_side_illusion_, complete_square_, all_sides_illusion_, one_side_missing_
 plt.show()
 

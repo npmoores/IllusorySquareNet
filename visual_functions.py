@@ -31,9 +31,9 @@ def visualizeNetwork(network, n, l, picture_directory, expo, name_to_save, show)
 	pixel_base = base.load()
 	for i in range(base.size[0]):
 		for j in range(base.size[1]):
-			r = int(AUTOS[i][j]**expo * 255)
-			g = int(AUTOS[i][j]**expo * 255)
-			b = int(AUTOS[i][j]**expo * 255)
+			r = int(max(0, AUTOS[i][j])**expo * 255)
+			g = int(max(0, AUTOS[i][j])**expo * 255)
+			b = int(max(0, AUTOS[i][j])**expo * 255)
 			pixel_base[i,j] = (r, g, b)
 	for i in range(base.size[0]):
 		pixel_base[i,n] = (0, 0, 255)
