@@ -27,42 +27,44 @@ plots_directory = "/Users/andesgomez/Documents/Stanford/Autumn2014-Masters/Psych
 n = 30
 l = 10 # Recognized square length
 sl = 10 # Input square length
-prob = 0.0
-sou =  [[11, 11], [5, 18], [23, 20], [25, 1]] # [[11, 11]]
+prob = 0.2
+sou =  [[11, 11]] # [[11, 11]]
 
 # Input parameters [0, 3] inclusive. 0 complete square, 1 one side missing, 2 one side illusion, 3 Kanicza
-sq = 0
+sq = 1
 
 # Normalization. dnorm 0 = layer normalization, 1 = one gaussian, 2 = DOG mexican hat
-dnorm = 0
+dnorm = 1
 amp1 = 1
 sd1 = .7
 amp2 = .5
 sd2 = 2
 
 # Update parameters
-lmda = .1
-sw = 2.
+lmda = .01
+sw = 40.1
 k = 2.
-alpha = .31
+alpha = 0.31
 beta = .002
 t = 1.0
 
 # Visualization parameters
 visual_scaling = 5
 expo = .3
-epochs_total = 50
+epochs_total = 20
 every_how_many_epochs = 1
 
 
 
 # Plotting parameters "voltemeters"
-row_units_to_measure = [[20, 11]] # [[20, 10], [20, 11], [20, 12]] # , [11, 10], [11, 11]]
+
+
+row_units_to_measure = [[sou[0][0] + l - 1, sou[0][1]]] # [[20, 11]] # [[20, 10], [20, 11], [20, 12]] # , [11, 10], [11, 11]]
 measurements_lists_rows = {}
 for unit in range(len(row_units_to_measure)):
 	measurements_lists_rows[unit] = []
 
-square_units_to_measure =  [[11, 11]]
+square_units_to_measure =  [[sou[0][0], sou[0][1]]] # [[11, 11]]
 measurements_lists_square = {}
 for unit in range(len(square_units_to_measure)):
 	measurements_lists_square[unit] = []
@@ -123,7 +125,8 @@ for i in range(len(sou)):
 	network_functions.clampSquareInInput(network, sou[i], sl, n)
 
 # Add noise to the input layer by flipping squares at random
-network_functions.randomlyFlipInputUnits(network, prob, n)
+#network_functions.randomlyFlipInputUnits(network, prob, n)
+network_functions.randomlyReplaceInputUnits(network, prob, n)
 
 # Fine detail changes
 for i, j in black_input_suqares:
@@ -195,16 +198,19 @@ x = range(epochs_total + 1)
 plt.title('Activation of Row and Square units over time')
 plt.ylabel('Unit activation')
 plt.xlabel('Epoch')
-#plt.axis([0, epochs_total + 1, 0, 1.2])
+plt.axis([0, epochs_total + 1, 0, 510])
 plot_list_ls = []
 
 count = 0
 for i in range(len(row_units_to_measure)):
-	plot_list_ls += plt.plot(x, measurements_lists_rows[i], plot_functions.getDotType(i), label = "line " + str(row_units_to_measure[i]))
+	#plot_list_ls += plt.plot(x, measurements_lists_rows[i], plot_functions.getDotType(i), label = "line " + str(row_units_to_measure[i]))
+	plot_list_ls += plt.plot(x, measurements_lists_rows[i], '-o', label = "line " + str(row_units_to_measure[i]))
 	count += 1
 
 for i in range(len(square_units_to_measure)):
-	plot_list_ls += plt.plot(x, measurements_lists_square[i], plot_functions.getDotType(i + count), label = "square " + str(square_units_to_measure[i]))
+	#plot_list_ls += plt.plot(x, measurements_lists_square[i], plot_functions.getDotType(i + count), label = "square " + str(square_units_to_measure[i]))
+	plot_list_ls += plt.plot(x, measurements_lists_square[i], '-xr', label = "square " + str(square_units_to_measure[i]))
+
 
 plt.legend(loc="lower right") #, bbox_to_anchor=(1,.5), shadow=True)
 plt.savefig(plots_directory +  parameter_description + ".png") # one_side_illusion_, complete_square_, all_sides_illusion_, one_side_missing_

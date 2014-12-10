@@ -49,6 +49,20 @@ def randomlyFlipInputUnits(network, prob, n):
 	return
 
 
+def randomlyReplaceInputUnits(network, prob, n):
+	for i in range(n):
+		for j in range(n):
+			if random.random() < prob:
+				network['I'][i][j] = random.randint(0, 1)
+	return
+
+def randomlyAddNoiseInputUnits(network, prob, n):
+	for i in range(n):
+		for j in range(n):
+			if random.random() < prob:
+				network['I'][i][j] = min(1, max(0, (network['I'][i][j] + random.gauss(0.5, 1))/ 2.))
+	return
+
 
 
 
@@ -333,7 +347,15 @@ def updateNetInputs(previousCnets, newRawC, lmda):
 
 
 
+################ Testing Sucess ########################
 
-
-
+# Test for sucess of square recognition
+def squareRecognitionSucess(network, square_corner):
+	units_higher_or_equal = 0.
+	success_square_unit_value = network['S'][square_corner[0]][square_corner[1]]
+	for i in range(len(network['S'])):
+		for j in range(len(network['S'][i])):
+			if success_square_unit_value <= network['S'][i][j]:
+				units_higher_or_equal += 1
+	return units_higher_or_equal
 
